@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <style>
+            h3, p {
+                font-family: "Arial";
+            }
+            button {
+                background-color: #202020;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+            }
+            .form-inline div, .form-inline p{
+                padding: 5px 30px;
+                display: inline-block;
+            }
+            .justify-content-center {
+                display: flex;
+                justify-content: center;
+            }
+            .active{
+                background-color: rgb(115, 151, 252);
+            }
+            .danger{
+                background-color: rgb(255, 136, 0);
+            }
+            .black{
+                background: #747474;
+            }
+            .white{
+                background: #A6A6A6;
+            }
+            .chessgame {
+                width: 50%;
+            }
+            .chessboard {
+                table-layout: fixed;
+                width: 100%;
+            }
+            .chess-cell, .choose-cell {
+                width: 33.33%;
+                position: relative;
+                height: 0px;
+                text-align: center;
+            }
+            .chess-cell:after, .choose-cell:after {
+                content: '';
+                display: block;
+                margin-top: 100%;
+            }
+            .chess-cell .content, .choose-cell .content {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 100%;
+            }
+            .choose-table{
+                position: absolute;
+                z-index: 1;
+                table-layout: fixed;
+			    width: 300%;
+            }
+            .choose-cell{
+                background-color: rgb(104, 113, 133);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root" class="justify-content-center"></div>
+
+        <script src="./node_modules/react/umd/react.development.js"></script>
+        <script src="./node_modules/react-dom/umd/react-dom.development.js"></script>
+
+        <script src="./dist/bundle.js"></script>
+    </body>
+</html>
