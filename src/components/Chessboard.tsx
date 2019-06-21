@@ -1,8 +1,8 @@
 import * as React from "react";
-import * as Chess from "./logic/Chess";
+import * as Chess from "../logic/Chess";
 import * as ChessComps from "./ChessComponents";
-import * as KI from "./logic/AlphaBetaSearch";
-import { ChessMove } from "./logic/Chess";
+import { AIFunction, createSearchWorker } from "../logic/AI";
+import { ChessMove } from "../logic/Chess";
 
 const blankRow: ChessComps.ChessSquareState[] = new Array<ChessComps.ChessSquareState>(8).fill(ChessComps.ChessSquareState.normal);
 const emptyPopups: Map<number, React.ReactNode> = new Map();
@@ -47,6 +47,8 @@ interface MainState {
 
     activePlayerLost: boolean;
     reversed: boolean;
+
+    ai: AIFunction;
 };
 
 function doMove(prevState: MainState, move: Chess.ChessMove) : MainState{
@@ -58,7 +60,8 @@ function doMove(prevState: MainState, move: Chess.ChessMove) : MainState{
         targetFields: updateTargetFields(newState, [-1, -1]), 
         reversed: prevState.reversed,
         activePlayerLost: newState.isCheckmate(newState.getCurrentPlayer()),
-        promotionField: undefined
+        promotionField: undefined,
+        ai: prevState.ai
     };
 }
 
@@ -81,7 +84,8 @@ export class Chessboard extends React.PureComponent<MainProps, MainState>{
             updateTargetFields(beginState, [-1, -1]), 
             currentField: [-1, -1],
             reversed: true,
-            activePlayerLost: false
+            activePlayerLost: false,
+            ai: createSearchWorker()
         };
     }
 
@@ -132,16 +136,16 @@ export class Chessboard extends React.PureComponent<MainProps, MainState>{
     }
 
     doKIMove() : void{
+        const _this = this;
         this.setState(function (prevState: Readonly<MainState>, props: MainProps): MainState{
-            if (prevState.calculating)
-                return { ...prevState };
             return {
                 ...prevState,
-                calculating: true
+                calculating: true,
+                targetFields: updateTargetFields(prevState.state, [-1, -1]), 
+                currentField: [-1, -1],
             }
         }, function (): void {
-            KI.asyncBestMove(this.state.state, 6).then(this.receiveMoveFromKI);
-            console.log("callback doKIMove finished");
+            _this.state.ai.findBestMove(_this.state.state, 5).then(_this.receiveMoveFromKI);
         });
     }
 
@@ -170,8 +174,8 @@ export class Chessboard extends React.PureComponent<MainProps, MainState>{
             <div className={"form-inline"}>
                 <ChessComps.GameInfo active={this.state.state.getCurrentPlayer()} lost={this.state.activePlayerLost} />
                 <button onClick={this.reverseChessboard}>rotate board</button>
-                <button onClick={this.doKIMove}>KI move</button>
-                <p>{this.state.calculating}</p>
+                <button onClick={this.doKIMove} disabled={this.state.calculating}>KI move</button>
+                {this.state.calculating && <p>Calculating...</p>}
             </div>
                 <table className={"chessboard"}><tbody>
                     <tr><th key={0}></th>{columnHeader}</tr>
@@ -196,7 +200,6 @@ class ChessboardRow extends React.PureComponent<ChessboardRowProps, ChessboardRo
     render() : React.ReactNode{
         const styles:ChessComps.ChessSquareState[] = this.props.styles;
         const y:number = this.props.y;
-        console.log("Render row " + y);
         let els:React.ReactNode[] = this.props.row.map((val: Chess.Chesspiece, x: number, arr: Chess.Chesspiece[]) => 
             {
                 return <ChessComps.ChessSquare 

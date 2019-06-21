@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as Chess from "./logic/Chess";
+import * as Chess from "../logic/Chess";
 
 const promotablePieces:Chess.PieceType[] = [Chess.PieceType.bishop, Chess.PieceType.knight, Chess.PieceType.queen, Chess.PieceType.castle];
 
